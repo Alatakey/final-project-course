@@ -46,7 +46,7 @@ export default function DiscoverTheWorld() {
               ספרו לנו על החוויה שלכם
             </h2>
             <p className="text-sm mt-3 mb-6">
-              לורם איפסום דולור סיט אקונסקטורר אדיפיסינג אלית לפרומי בלוף קינץ
+              ? כאן תוכלו לספר לנו על החוויה שלכם
             </p>
           </div>
           <form className="flex flex-col w-11/12 mx-auto md:h-60" action="">

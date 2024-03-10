@@ -5,10 +5,7 @@ export default function LetUsLedYou() {
         <h1 className="font-extrabold md:text-6xl text-2xl text-yellow-400">
           תן לנו להוביל אותך קדימה
         </h1>
-        <p className="text-white">
-          לורם איפסום או בקיצור ליפסום, הוא מלל מקובל וחסר משמעות המשמש “ממלא
-          מקום” בעת עריכ.
-        </p>
+        <p className="text-white">לי לנו יכולת להוביל אותך קדימה</p>
       </div>
       <form
         className="flex flex-col items-center justify-center gap-5"

@@ -1,7 +1,6 @@
 import "./App.css";
 import HomePage from "./mainPages/homePage";
 import NavBar from "./components/navBar";
-import Services from "./mainPages/servicesPage";
 import About from "./mainPages/aboutPage";
 import Contact from "./mainPages/contactPage";
 import NotFound from "./mainPages/notFound";
@@ -15,7 +14,6 @@ import LetUsLedYou from "./pages/letUsLedYou2";
 import FreeAdvice from "./pages/freeAdvice";
 import DiscoverTheWorld from "./pages/discoverTheWorld";
 import ConnectFour from "./jsPages/connectFour/connectFour";
-import { SlCalender } from "react-icons/sl";
 import Calendar from "./jsPages/calendar/calendar";
 import CartList from "./jsPages/cartList/cartList";
 import MemoryGame from "./jsPages/memoryGame/memoryGame";
@@ -26,10 +24,6 @@ const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
     element: <HomePage />,
-  },
-  {
-    path: ROUTES.SERVICES,
-    element: <Services />,
   },
   {
     path: ROUTES.ABOUT,

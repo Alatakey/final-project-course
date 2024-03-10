@@ -8,8 +8,7 @@ export default function LetUsLedYouForward() {
               תן לנו להוביל אותך קדימה
             </h1>
             <p className=" mb-4 text-white text-base text-center p-10">
-              לורם איפסום או בקיצור ליפסום, הוא מלל מקובל וחסר משמעות המשמש
-              “ממלא מקום” בעת עריכ.
+              לי לנו יכולת להוביל אותך קדימה
             </p>
             <form action="">
               <div className="items-center justify-center gap-4 flex flex-col">

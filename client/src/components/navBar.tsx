@@ -17,9 +17,6 @@ export default function NavBar() {
           <a href="homePage">Home</a>
         </li>
         <li className="p-4">
-          <a href="Services">Services</a>
-        </li>
-        <li className="p-4">
           <a href="About">About</a>
         </li>
         <li className="p-4">
@@ -38,9 +35,6 @@ export default function NavBar() {
         <ul className="uppercase p-4">
           <li className="p-4 border-b border-gray-300">
             <a href="homePage">Home</a>
-          </li>
-          <li className="p-4 border-b border-gray-300">
-            <a href="Services">Services</a>
           </li>
           <li className="p-4 border-b border-gray-300">
             <a href="About">About</a>

@@ -7,11 +7,10 @@ export default function HereAndNow() {
             Here & Now
           </h1>
           <h2 className="text-center font-semibold text-white mb-7 tracking-wider">
-            רצינו להזמין אתבם להנות משלל מתנות
+            רצינו להזמין אתכם להנות משלל מתנות
           </h2>
           <label className=" mb-14 text-white text-base text-center" htmlFor="">
-            לורם איפסום דולור סיט אקונסקטורר אדיפיסינג אלית לפרומי בלוף קינץ
-            תתיח לרעח. לת צשחמי צש בליא,{" "}
+            יש להזין את כל הפרטים{" "}
           </label>
           <form action="">
             <div className="md:w-11/12 lg:w-10/12 xl:w-9/12 2xl:w-8/12 w-11/12 gap-4 flex flex-col md:flex-row-reverse mt-5 mx-auto justify-center items-center">
