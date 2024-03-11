@@ -20,6 +20,9 @@ export default function NavBar() {
           <a href="About">About</a>
         </li>
         <li className="p-4">
+          <a href="Register">Register</a>
+        </li>
+        <li className="p-4">
           <a href="Contact">Contact</a>
         </li>
       </ul>
@@ -38,6 +41,9 @@ export default function NavBar() {
           </li>
           <li className="p-4 border-b border-gray-300">
             <a href="About">About</a>
+          </li>
+          <li className="p-4 border-b border-gray-300">
+            <a href="Register">Register</a>
           </li>
           <li className="p-4">
             <a href="Contact">Contact</a>

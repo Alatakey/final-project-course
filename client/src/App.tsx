@@ -3,6 +3,7 @@ import HomePage from "./mainPages/homePage";
 import NavBar from "./components/navBar";
 import About from "./mainPages/aboutPage";
 import Contact from "./mainPages/contactPage";
+import RegisterPage from "./mainPages/registerPage";
 import NotFound from "./mainPages/notFound";
 import Footer from "./components/footer";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
   {
     path: ROUTES.CONTACT,
     element: <Contact />,
+  },
+  {
+    path: ROUTES.REGISTER,
+    element: <RegisterPage />,
   },
   {
     path: "*",
