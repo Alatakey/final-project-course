@@ -20,6 +20,7 @@ import CartList from "./jsPages/cartList/cartList";
 import MemoryGame from "./jsPages/memoryGame/memoryGame";
 import PageBuilder from "./jsPages/pageBuilder/pageBuilder";
 import XOGame from "./jsPages/x_oGame/x_oGame";
+import LoginPage from "./mainPages/loginPage";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
   {
     path: ROUTES.REGISTER,
     element: <RegisterPage />,
+  },
+  {
+    path: ROUTES.LOGIN,
+    element: <LoginPage />,
   },
   {
     path: "*",

@@ -3,5 +3,6 @@ const ROUTES = {
   ABOUT: "/about",
   CONTACT: "/contact",
   REGISTER: "/register",
+  LOGIN: "/login",
 };
 export default ROUTES;
