@@ -131,7 +131,7 @@ export async function startExpressServer() {
     });
 
     if (!result.isOk) {
-      return res.status(500).send(result.error);
+      return res.status(400).send(result.error);
     }
     res.send("User registered successfully.");
   });

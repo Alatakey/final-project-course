@@ -48,26 +48,23 @@ const RegisterPage: React.FC = () => {
     try {
       // Send the form data to your backend for registration
       const response = await sendRegisterToServer(formData);
+      console.log("Registration response:", response);
 
-      if (response.status === 200) {
-        // Registration successful
-        setRegistrationMessage("Registration successful");
-        // Reset form after submission
-        setFormData({
-          username: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-          dateOfBirth: "",
-          country: "",
-        });
-      } else {
-        // Registration failed
-        setRegistrationMessage("Registration failed");
-        // Handle error scenario
-      }
+      // Registration successful
+      setRegistrationMessage("Registration successful");
+      // Reset form after submission
+      setFormData({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        dateOfBirth: "",
+        country: "",
+      });
     } catch (error: any) {
       setRegistrationMessage("Error occurred: " + error.message);
+      console.log("Error:", error);
+
       // Handle error scenario
     }
   };
