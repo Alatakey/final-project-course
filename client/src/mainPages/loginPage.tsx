@@ -1,14 +1,39 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function Login() {
-  const [username, setUsername] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+interface LoginFormProps {
+  onSubmit: (username: string, password: string) => void;
+}
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+export default function LoginPage() {
+  const handleLogin = (username: string, password: string) => {
     // Add your login authentication logic here
     console.log("Username:", username);
     console.log("Password:", password);
+  };
+
+  return (
+    <div>
+      <h1>Login Page</h1>
+      <LoginForm onSubmit={handleLogin} />
+    </div>
+  );
+}
+
+export function LoginForm({ onSubmit }: LoginFormProps) {
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const navigate = useNavigate();
+
+  const handleRegisterClick = () => {
+    // Navigate to the register page or show the register form
+    console.log("Register clicked");
+    navigate("/register");
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onSubmit(username, password);
   };
 
   const handleUsernameChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -72,6 +97,18 @@ export default function Login() {
             </button>
           </div>
         </form>
+
+        <div className="text-center">
+          <p className="mt-2 text-sm text-gray-600">
+            Don't have an account?{" "}
+            <button
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+              onClick={handleRegisterClick}
+            >
+              Register
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
