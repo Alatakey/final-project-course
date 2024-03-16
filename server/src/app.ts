@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import { DB_CONNECTION_URL } from "./consts";
 import bcrypt from "bcrypt";
@@ -7,7 +7,7 @@ import {
   getAllUsersFromDb,
   getUserFromDbById,
 } from "./dbFunctions";
-import { UserDoc, UserModel } from "./schemas";
+import { UserDoc, UserModel } from "./schemas/users-schema";
 import cors from "cors";
 import morgan from "morgan";
 import dayjs from "dayjs";
@@ -27,6 +27,12 @@ export async function startExpressServer() {
 
   // Log all requests and responses
   app.use(morgan("dev"));
+
+  // Error handling middleware
+  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    console.error("An error occurred:", err);
+    res.status(500).send("Internal Server Error");
+  });
 
   // Define a routes
 
@@ -115,20 +121,14 @@ export async function startExpressServer() {
       return res.status(400).send(error);
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create a new user document
-    const newUser: UserDoc = new UserModel({
+    // Save the user document to the database
+    const result = await addUserToDb({
       name,
-      date: dayjs(date).toDate(),
+      date,
       country,
       email,
-      hashedPassword,
+      password,
     });
-
-    // Save the user document to the database
-    const result = await addUserToDb(newUser);
 
     if (!result.isOk) {
       return res.status(500).send(result.error);

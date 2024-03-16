@@ -1,26 +1,32 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import bcrypt from "bcrypt";
-
 const USER_TABLE_NAME = "users";
 
-export interface UserDoc extends Document {
+// Define the TypeScript interface
+interface User {
   name: string;
-  id: mongoose.Types.ObjectId;
   date: Date;
   country: string;
   email: string;
   hashedPassword: string;
 }
 
-export const UserSchema: Schema = new Schema({
+// Define the Mongoose schema
+const UserSchemaFields: Record<keyof User, any> = {
   name: { type: String, required: true },
   date: { type: Date, required: true },
   country: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   hashedPassword: { type: String, required: true },
-});
+};
+const UserSchema = new Schema(UserSchemaFields);
 
-export const UserModel: Model<UserDoc> = mongoose.model<UserDoc>(
+// Define the Mongoose document interface based on the User interface
+interface UserDoc extends User, Document {}
+
+// Define the Mongoose model
+const UserModel: Model<UserDoc> = mongoose.model<UserDoc>(
   USER_TABLE_NAME,
   UserSchema
 );
+
+export { User, UserDoc, UserModel };

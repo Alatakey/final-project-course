@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import { ResultValue, ResultBool } from "./interfaces";
-import { UserDoc, UserModel } from "./schemas";
+import { UserDoc, UserModel } from "./schemas/users-schema";
+import bcrypt from "bcrypt";
+import dayjs from "dayjs";
 
 export async function getAllUsersFromDb(): Promise<UserDoc[]> {
   try {
@@ -30,17 +32,43 @@ export async function getUserFromDbById(
   }
 }
 
-export async function addUserToDb(userDoc: UserDoc): Promise<ResultBool> {
-  const userExists = await isUserExistsInDb(userDoc.name, userDoc.email);
-  if (userExists === true) {
+interface AddUserParams {
+  name: string;
+  date: string;
+  country: string;
+  email: string;
+  password: string;
+}
+export async function addUserToDb(params: AddUserParams): Promise<ResultBool> {
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(params.password, 10);
+
+  // Create a new user document
+  const newUser: UserDoc = new UserModel({
+    name: params.name,
+    date: dayjs(params.date).toDate(),
+    country: params.country,
+    email: params.email,
+    hashedPassword,
+  });
+
+  const userExists = await isUserExistsInDb(newUser.name, newUser.email);
+  if (userExists) {
     return {
       isOk: false,
-      error: `User ${userDoc.id} already exists`,
+      error: `UserName ${newUser.name} or Email ${newUser.email} already exists`,
     };
   }
-  const newUser = new UserModel(userDoc);
-  await newUser.save();
-  return { isOk: true };
+
+  try {
+    // Save the user to the database
+    await newUser.save();
+    return { isOk: true };
+  } catch (error) {
+    // Handle any errors that occur during saving
+    console.error("Error adding user to database:", error);
+    return { isOk: false, error: "Failed to add user to database" };
+  }
 }
 
 export async function isUserExistsInDb(
