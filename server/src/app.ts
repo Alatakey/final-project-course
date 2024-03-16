@@ -10,6 +10,7 @@ import {
 import { UserDoc, UserModel } from "./schemas";
 import cors from "cors";
 import morgan from "morgan";
+import dayjs from "dayjs";
 
 export async function startExpressServer() {
   // Create Express app
@@ -45,8 +46,15 @@ export async function startExpressServer() {
    */
   app.get("/users", async (req: Request, res: Response) => {
     const users = await getAllUsersFromDb();
+
+    // Remove hashedPassword field from each user object
+    const usersWithoutHashedPassword = users.map((user: UserDoc) => {
+      const { hashedPassword, ...userWithoutHashedPassword } = user.toObject();
+      return userWithoutHashedPassword;
+    });
+
     res.send({
-      users: users,
+      users: usersWithoutHashedPassword,
       timestamp: new Date().toISOString(),
     });
   });
@@ -56,6 +64,7 @@ export async function startExpressServer() {
    * Request should be a GET request with the user id as a path parameter
    * e.g. /users/123
    */
+
   app.get("/users/:id", async (req: Request, res: Response) => {
     const userId = req.params.id;
     const result = await getUserFromDbById(userId);
@@ -64,7 +73,11 @@ export async function startExpressServer() {
       return res.status(404).send(result.error);
     }
 
-    res.send(result.data);
+    // Remove hashedPassword field from the user object
+    const { hashedPassword, ...userWithoutHashedPassword } =
+      result.data.toObject();
+
+    res.send(userWithoutHashedPassword);
   });
 
   /**
@@ -87,8 +100,19 @@ export async function startExpressServer() {
     const { name, date, country, email, password } = req.body;
 
     // Validate all fields
-    if (!name || !date || !country || !email || !password) {
-      return res.status(400).send("All fields are required.");
+    const missingFields: string[] = [];
+
+    // Check each field individually and add missing fields to the array
+    if (!name) missingFields.push("name");
+    if (!date) missingFields.push("date");
+    if (!country) missingFields.push("country");
+    if (!email) missingFields.push("email");
+    if (!password) missingFields.push("password");
+
+    // If any fields are missing, return the list of missing fields in the response
+    if (missingFields.length > 0) {
+      const error = `Missing fields: ${missingFields.join(", ")}`;
+      return res.status(400).send(error);
     }
 
     // Hash the password
@@ -97,7 +121,7 @@ export async function startExpressServer() {
     // Create a new user document
     const newUser: UserDoc = new UserModel({
       name,
-      date,
+      date: dayjs(date).toDate(),
       country,
       email,
       hashedPassword,

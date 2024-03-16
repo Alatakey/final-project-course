@@ -1,15 +1,14 @@
 import axios, { Axios, AxiosResponse } from "axios";
 import { RegisterFormData } from "../interfaces";
 import { API_URL } from "../consts";
+import dayjs from "dayjs";
 
 export async function sendRegisterToServer(formData: RegisterFormData) {
-  // send register request in axios
-  // return response
   const paramsToSend = {
     name: formData.username,
     email: formData.email,
     password: formData.password,
-    dateOfBirth: formData.dateOfBirth,
+    date: dayjs(formData.dateOfBirth).toISOString(),
     country: formData.country,
   };
 
