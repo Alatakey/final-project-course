@@ -1,5 +1,4 @@
 import express, { Express, Request, Response } from "express";
-import { User } from "./interfaces";
 import mongoose from "mongoose";
 import { DB_CONNECTION_URL } from "./consts";
 import bcrypt from "bcrypt";
@@ -9,6 +8,8 @@ import {
   getUserFromDbById,
 } from "./dbFunctions";
 import { UserDoc, UserModel } from "./schemas";
+import cors from "cors";
+import morgan from "morgan";
 
 export async function startExpressServer() {
   // Create Express app
@@ -20,6 +21,12 @@ export async function startExpressServer() {
   // Middleware to parse JSON bodies
   app.use(express.json());
 
+  // Enable CORS for all routes
+  app.use(cors());
+
+  // Log all requests and responses
+  app.use(morgan("dev"));
+
   // Define a routes
 
   /**
@@ -29,33 +36,6 @@ export async function startExpressServer() {
    */
   app.get("/", (req: Request, res: Response) => {
     res.send("Alive!");
-  });
-
-  /**
-   * Check if the server is alive
-   * Request should be a GET request
-   * e.g. /check
-   */
-  app.get("/check", (req: Request, res: Response) => {
-    res.send("Check!");
-  });
-
-  /**
-   * Say hello to a user
-   * Request should be a GET request with the following query parameters:
-   * - id: string
-   * - name: string
-   * e.g. /hello?id=123&name=John
-   */
-  app.get("/hello", (req: Request, res: Response) => {
-    const { id, name } = req.query;
-
-    if (!id || !name) {
-      return res.status(400).send("Both id and name are required.");
-    }
-
-    const greeting = `Hello ${id} ${name}`;
-    res.send(greeting);
   });
 
   /**

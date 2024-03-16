@@ -1,14 +1,7 @@
 import { useState } from "react";
-import countries from "../consts/countries";
-
-interface RegisterFormData {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  dateOfBirth: string;
-  country: string;
-}
+import COUNTRIES from "../consts/countries";
+import { RegisterFormData } from "../interfaces";
+import { sendRegisterToServer } from "../request";
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -54,15 +47,9 @@ const RegisterPage: React.FC = () => {
 
     try {
       // Send the form data to your backend for registration
-      const response = await fetch("YOUR_API_ENDPOINT_HERE", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await sendRegisterToServer(formData);
 
-      if (response.ok) {
+      if (response.status === 200) {
         // Registration successful
         setRegistrationMessage("Registration successful");
         // Reset form after submission
@@ -176,7 +163,7 @@ const RegisterPage: React.FC = () => {
               required
             >
               <option value="">Select your country</option>
-              {countries.map((c) => {
+              {COUNTRIES.map((c) => {
                 return <option value={c}>{c}</option>;
               })}
             </select>

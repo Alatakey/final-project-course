@@ -1,4 +1,4 @@
-const countries: string[] = [
+const COUNTRIES: string[] = [
   "Select your country",
   "Afghanistan",
   "Albania",
@@ -196,6 +196,6 @@ const countries: string[] = [
   "Zambia",
   "Zimbabwe",
 ];
-countries.sort();
+COUNTRIES.sort();
 
-export default countries;
+export default COUNTRIES;
