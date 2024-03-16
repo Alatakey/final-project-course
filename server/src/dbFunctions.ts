@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import { ResultValue, ResultBool, User } from "./interfaces";
+import { ResultValue, ResultBool } from "./interfaces";
 import { UserDoc, UserModel } from "./schemas";
 
-export async function getAllUsersFromDb(): Promise<User[]> {
+export async function getAllUsersFromDb(): Promise<UserDoc[]> {
   try {
     const usersRes: UserDoc[] = await UserModel.find({});
     return usersRes; // Return the result of the query
@@ -14,7 +14,7 @@ export async function getAllUsersFromDb(): Promise<User[]> {
 
 export async function getUserFromDbById(
   id: string
-): Promise<ResultValue<User>> {
+): Promise<ResultValue<UserDoc>> {
   try {
     const user = await UserModel.findOne({ id });
     if (!user) {
@@ -30,29 +30,34 @@ export async function getUserFromDbById(
   }
 }
 
-export async function addUserToDb(user: User): Promise<ResultBool> {
-  const userExists = await isUserExistsInDb(user.id);
+export async function addUserToDb(userDoc: UserDoc): Promise<ResultBool> {
+  const userExists = await isUserExistsInDb(userDoc.name, userDoc.email);
   if (userExists === true) {
     return {
       isOk: false,
-      error: `User ${user.id} already exists`,
+      error: `User ${userDoc.id} already exists`,
     };
   }
-  const newUser = new UserModel(user);
+  const newUser = new UserModel(userDoc);
   await newUser.save();
   return { isOk: true };
 }
 
-export async function isUserExistsInDb(id: string): Promise<boolean> {
+export async function isUserExistsInDb(
+  userName: string,
+  email: string
+): Promise<boolean> {
   try {
-    // Find a user with the given id
-    const existingUser = await UserModel.findOne({ id });
+    // Find a user with the given userName or email
+    const existingUser = await UserModel.findOne({
+      $or: [{ name: userName }, { email }],
+    });
 
-    // If a user with the given id is found, return true
+    // If a user with the given userName or email is found, return true
     if (existingUser) {
       return true;
     }
-    // If no user is found with the given id, return false
+    // If no user is found with the given userName or email, return false
     return false;
   } catch (error) {
     // If an error occurs during the database operation, log it and return false

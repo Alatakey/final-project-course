@@ -2,11 +2,13 @@ import express, { Express, Request, Response } from "express";
 import { User } from "./interfaces";
 import mongoose from "mongoose";
 import { DB_CONNECTION_URL } from "./consts";
+import bcrypt from "bcrypt";
 import {
   addUserToDb,
   getAllUsersFromDb,
   getUserFromDbById,
 } from "./dbFunctions";
+import { UserDoc, UserModel } from "./schemas";
 
 export async function startExpressServer() {
   // Create Express app
@@ -87,25 +89,47 @@ export async function startExpressServer() {
 
   /**
    * Register a new user
-   * Request should be a JSON object with the following structure:
-   * {
-   *  "id": "string",
-   *  "name": "string"
-   *  }
+   * Request should be a POST request with the following body:
+   * - name: string
+   * - date: Date
+   * - country: string
+   * - email: string
+   * - password: string
+   * e.g. {
+   *   "name": "John",
+   *   "date": "2020-01-01",
+   *   "country": "USA",
+   *   "email": "pCnXp@example.com",
+   *   "password": "password"
+   * }
    */
   app.post("/register", async (req: Request, res: Response) => {
-    const { id, name } = req.body;
-    if (!id || !name) {
-      return res.status(400).send("Both id and name are required.");
+    const { name, date, country, email, password } = req.body;
+
+    // Validate all fields
+    if (!name || !date || !country || !email || !password) {
+      return res.status(400).send("All fields are required.");
     }
 
-    const user: User = { id, name };
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const result = await addUserToDb(user);
+    // Create a new user document
+    const newUser: UserDoc = new UserModel({
+      name,
+      date,
+      country,
+      email,
+      hashedPassword,
+    });
+
+    // Save the user document to the database
+    const result = await addUserToDb(newUser);
+
     if (!result.isOk) {
-      return res.status(404).send(result.error);
+      return res.status(500).send(result.error);
     }
-    res.send(`User ${id} has registered successfully`);
+    res.send("User registered successfully.");
   });
 
   // Start the Express server
