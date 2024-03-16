@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function HomePage() {
   return (
-    <div className="bg-gray-200 p-6">
+    <div className="bg-gray-200 p-6 z-10">
       <div className="bg-slate-600 mt-5 mb-10 p-6 text-red-500 rounded-lg">
         <h1 className="text-4xl mb-4">Welcome to my website</h1>
         <p className="text-lg">

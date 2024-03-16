@@ -95,7 +95,10 @@ const router = createBrowserRouter([
 function App() {
   return (
     <div className="App">
-      <NavBar />
+      <div className="z-10 sticky top-0">
+        <NavBar />
+      </div>
+
       <RouterProvider router={router} />
       <Footer />
     </div>

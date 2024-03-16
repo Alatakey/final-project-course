@@ -1,18 +1,12 @@
 import express, { Express, Request, Response } from "express";
-import { PI } from "./consts";
 import { User } from "./interfaces";
 import mongoose from "mongoose";
+import { DB_CONNECTION_URL } from "./consts";
 import {
   addUserToDb,
   getAllUsersFromDb,
   getUserFromDbById,
 } from "./dbFunctions";
-
-const DB_CONNECTION_URL =
-  "mongodb+srv://rodinshomaf:PDAcy2DCwgVVsyS4@cluster0.mxamktg.mongodb.net/final-project";
-
-// States & Variables
-let counter: number = 0;
 
 export async function startExpressServer() {
   // Create Express app
@@ -42,15 +36,6 @@ export async function startExpressServer() {
    */
   app.get("/check", (req: Request, res: Response) => {
     res.send("Check!");
-  });
-
-  /**
-   * Get the value of PI
-   * Request should be a GET request
-   * e.g. /pi
-   */
-  app.get("/pi", (req: Request, res: Response) => {
-    res.send(`PI is approximately ${PI}`);
   });
 
   /**
@@ -121,26 +106,6 @@ export async function startExpressServer() {
       return res.status(404).send(result.error);
     }
     res.send(`User ${id} has registered successfully`);
-  });
-
-  /**
-   * Get the current value of the counter
-   * Request should be a GET request
-   * e.g. /counter
-   */
-  app.get("/counter", (req: Request, res: Response) => {
-    res.send(`Counter is at ${counter}`);
-    counter += 1;
-  });
-
-  /**
-   * Reset the counter to 0
-   * Request should be a POST request
-   * e.g. /reset-counter
-   */
-  app.post("/reset-counter", (req: Request, res: Response) => {
-    counter = 0;
-    res.send("Counter has been reset");
   });
 
   // Start the Express server
