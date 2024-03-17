@@ -41,10 +41,14 @@ export async function sendRegisterToServer(
   }
 }
 
+interface SendLoginToServerResult {
+  token: string;
+  name: string;
+}
 export async function sendLoginToServer(
   userName: string,
   password: string
-): Promise<Result<any, string>> {
+): Promise<Result<SendLoginToServerResult, string>> {
   try {
     const paramsToSend = {
       name: userName,

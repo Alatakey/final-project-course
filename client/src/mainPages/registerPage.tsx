@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import COUNTRIES from "../consts/countries";
 import { RegisterFormData } from "../interfaces";
 import { sendRegisterToServer } from "../request";
+import { useNavigate } from "react-router-dom";
 
 interface RegisterFormProps {
   onSubmit: (formData: RegisterFormData) => void;
@@ -10,6 +11,7 @@ interface RegisterFormProps {
 
 export default function RegisterPage() {
   const [registrationMessage, setRegistrationMessage] = useState<string>("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (formData: RegisterFormData) => {
     // Handle form submission
@@ -17,6 +19,7 @@ export default function RegisterPage() {
       const response = await sendRegisterToServer(formData);
       console.log("Registration response:", response);
       setRegistrationMessage("Registration successful");
+      navigate("/login");
     } catch (error: any) {
       setRegistrationMessage("Error occurred: " + error.message);
       console.error("Error:", error);

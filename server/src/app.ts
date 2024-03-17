@@ -154,9 +154,12 @@ export async function startExpressServer() {
   });
 
   app.post("/login", async (req: Request, res: Response) => {
-    const { username, password } = req.body;
+    const { name, password } = req.body;
 
-    const loginTokenRes = await getLoginToken(username, password);
+    if (!name || !password) {
+      return res.status(400).send("Missing name or password");
+    }
+    const loginTokenRes = await getLoginToken(name, password);
 
     if (!loginTokenRes.data) {
       return res.status(401).send(loginTokenRes.error);
@@ -164,7 +167,7 @@ export async function startExpressServer() {
     const token = loginTokenRes.data;
 
     // Return token
-    res.json({ token });
+    res.json({ token, name });
   });
 
   // Start the Express server

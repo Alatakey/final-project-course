@@ -1,21 +1,36 @@
 import React, { useState } from "react";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
+import useToken from "../hooks/useToken";
 
 export default function Navbar() {
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const { userToken, removeToken } = useToken(); // Access user token and removeToken from the hook
 
   function toggleNav() {
     setIsNavOpen(!isNavOpen);
   }
 
+  const handleLogout = () => {
+    removeToken(); // Call the removeToken function to clear the token
+    window.location.reload(); // Refresh the page after logging out
+  };
+
   return (
     <div className="flex justify-end items-center h-24 w-full px-4 bg-gray-800 rounded-b-lg">
+      {userToken ? (
+        <>
+          <LoggedInText name={userToken.name} />
+          <button onClick={handleLogout} className="text-white">
+            Logout
+          </button>
+        </>
+      ) : null}{" "}
+      {/* Render if user is logged in */}
       <DesktopNavbar />
       <MobileNavbar isNavOpen={isNavOpen} toggleNav={toggleNav} />
     </div>
   );
 }
-// DesktopNavbar.js
 
 function DesktopNavbar() {
   return (
@@ -48,7 +63,6 @@ function DesktopNavbar() {
     </ul>
   );
 }
-// MobileNavbar.js
 
 interface MobileNavbarProps {
   isNavOpen: boolean;
@@ -99,4 +113,8 @@ function MobileNavbar({ isNavOpen, toggleNav }: MobileNavbarProps) {
       </div>
     </>
   );
+}
+
+function LoggedInText({ name }: { name: string }) {
+  return <p className="text-white mr-4">Logged in as {name}</p>;
 }

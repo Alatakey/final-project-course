@@ -20,7 +20,8 @@ export async function getUserFromDbByName(
   name: string
 ): Promise<ResultValue<UserDoc>> {
   try {
-    const user = await UserModel.findOne({ name: name });
+    const user = await UserModel.findOne({ name: name.toLowerCase() });
+
     if (!user) {
       return {
         data: null,
@@ -60,11 +61,12 @@ interface AddUserParams {
 }
 export async function addUserToDb(params: AddUserParams): Promise<ResultBool> {
   // Hash the password
-  const hashedPassword = await bcrypt.hash(params.password, 10);
+  const hashedPassword = hashPassword(params.password);
 
+  const smallerName = params.name.toLowerCase();
   // Create a new user document
   const newUser: UserDoc = new UserModel({
-    name: params.name,
+    name: smallerName,
     date: dayjs(params.date).toDate(),
     country: params.country,
     email: params.email,
@@ -88,6 +90,12 @@ export async function addUserToDb(params: AddUserParams): Promise<ResultBool> {
     console.error("Error adding user to database:", error);
     return { isOk: false, error: "Failed to add user to database" };
   }
+}
+
+export function hashPassword(password: string) {
+  // Hash the password
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  return hashedPassword;
 }
 
 export async function isUserExistsInDb(
@@ -118,8 +126,9 @@ export async function getLoginToken(
   password: string
 ): Promise<ResultValue<string>> {
   // Find user by username
+  const smallerName = userName.toLowerCase();
   const foundUserRes: ResultValue<UserDoc> = await getUserFromDbByName(
-    userName
+    smallerName
   );
 
   if (!foundUserRes.data) {

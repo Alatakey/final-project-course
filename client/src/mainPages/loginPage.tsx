@@ -1,6 +1,7 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendLoginToServer } from "../request";
+import useToken, { UserToken } from "../hooks/useToken";
 
 interface LoginFormProps {
   onSubmit: (username: string, password: string) => void;
@@ -8,6 +9,8 @@ interface LoginFormProps {
 }
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  const { setUserToken: setToken } = useToken();
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
@@ -18,11 +21,17 @@ export default function LoginPage() {
     if (result.isOk()) {
       // Login successful
       console.log("Login successful");
+      const tokenObject: UserToken = {
+        name: result.value.name,
+        token: result.value.token,
+      };
+      setToken(tokenObject);
+      navigate("/homePage");
+      window.location.reload();
     } else {
       // Login failed
       console.log("Login failed");
       setErrorMessage(result.error);
-      
     }
   };
 
