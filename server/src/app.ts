@@ -5,8 +5,9 @@ import bcrypt from "bcrypt";
 import {
   addUserToDb,
   getAllUsersFromDb,
-  getUserFromDbById,
-} from "./dbFunctions";
+  getLoginToken,
+  getUserFromDbByName,
+} from "./handler";
 import { UserDoc, UserModel } from "./schemas/users-schema";
 import cors from "cors";
 import morgan from "morgan";
@@ -73,7 +74,7 @@ export async function startExpressServer() {
 
   app.get("/users/:id", async (req: Request, res: Response) => {
     const userId = req.params.id;
-    const result = await getUserFromDbById(userId);
+    const result = await getUserFromDbByName(userId);
 
     if (!result.data) {
       return res.status(404).send(result.error);
@@ -134,6 +135,20 @@ export async function startExpressServer() {
       return res.status(400).send(result.error);
     }
     res.send("User registered successfully.");
+  });
+
+  app.post("/login", async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+
+    const loginTokenRes = await getLoginToken(username, password);
+
+    if (!loginTokenRes.data) {
+      return res.status(401).send(loginTokenRes.error);
+    }
+    const token = loginTokenRes.data;
+
+    // Return token
+    res.json({ token });
   });
 
   // Start the Express server

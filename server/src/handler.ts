@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
-import { ResultValue, ResultBool } from "./interfaces";
+import { ResultValue, ResultBool, SignData } from "./interfaces";
 import { UserDoc, UserModel } from "./schemas/users-schema";
 import bcrypt from "bcrypt";
 import dayjs from "dayjs";
+import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "./consts";
 
 export async function getAllUsersFromDb(): Promise<UserDoc[]> {
   try {
@@ -14,15 +16,32 @@ export async function getAllUsersFromDb(): Promise<UserDoc[]> {
   }
 }
 
-export async function getUserFromDbById(
-  id: string
+export async function getUserFromDbByName(
+  name: string
 ): Promise<ResultValue<UserDoc>> {
   try {
-    const user = await UserModel.findOne({ id });
+    const user = await UserModel.findOne({ name: name });
     if (!user) {
       return {
         data: null,
-        error: `User ${id} not found`,
+        error: `User ${name} not found`,
+      };
+    }
+    return { data: user };
+  } catch (error) {
+    console.error("Error fetching user from the database:", error);
+    throw new Error("Failed to fetch user from the database");
+  }
+}
+export async function getUserFromDbByEmail(
+  email: string
+): Promise<ResultValue<UserDoc>> {
+  try {
+    const user = await UserModel.findOne({ email: email });
+    if (!user) {
+      return {
+        data: null,
+        error: `User ${email} not found`,
       };
     }
     return { data: user };
@@ -92,4 +111,49 @@ export async function isUserExistsInDb(
     console.error("Error checking if user exists:", error);
     return false;
   }
+}
+
+export async function getLoginToken(
+  userName: string,
+  password: string
+): Promise<ResultValue<string>> {
+  // Find user by username
+  const foundUserRes: ResultValue<UserDoc> = await getUserFromDbByName(
+    userName
+  );
+
+  if (!foundUserRes.data) {
+    return {
+      data: null,
+      error: "Invalid username or password",
+    };
+  }
+
+  const foundUser: UserDoc = foundUserRes.data;
+
+  // Check password
+  const passwordMatch: boolean = await bcrypt.compare(
+    password,
+    foundUser.hashedPassword
+  );
+
+  if (!passwordMatch) {
+    return {
+      data: null,
+      error: "Invalid username or password",
+    };
+  }
+
+  // Create object to sign
+  const objectToSign: SignData = {
+    name: foundUser.name,
+    email: foundUser.email,
+  };
+
+  // Generate JWT token
+  const token: string = jwt.sign(objectToSign, JWT_SECRET, {
+    expiresIn: "24h",
+  });
+
+  return { data: token };
 }
