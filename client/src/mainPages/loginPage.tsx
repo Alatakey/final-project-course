@@ -1,25 +1,39 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { sendLoginToServer } from "../request";
 
 interface LoginFormProps {
   onSubmit: (username: string, password: string) => void;
+  errorMessage?: string;
 }
 
 export default function LoginPage() {
-  const handleLogin = (username: string, password: string) => {
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  );
+
+  const handleLogin = async (username: string, password: string) => {
     // Add your login authentication logic here
-    console.log("Username:", username);
-    console.log("Password:", password);
+    const result = await sendLoginToServer(username, password);
+    if (result.isOk()) {
+      // Login successful
+      console.log("Login successful");
+    } else {
+      // Login failed
+      console.log("Login failed");
+      setErrorMessage(result.error);
+      
+    }
   };
 
   return (
     <div>
-      <LoginForm onSubmit={handleLogin} />
+      <LoginForm onSubmit={handleLogin} errorMessage={errorMessage} />
     </div>
   );
 }
 
-export function LoginForm({ onSubmit }: LoginFormProps) {
+export function LoginForm({ onSubmit, errorMessage }: LoginFormProps) {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
@@ -97,6 +111,9 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           </div>
         </form>
 
+        {errorMessage && (
+          <p className="text-red-500 text-center">{errorMessage}</p>
+        )}
         <div className="text-center">
           <p className="mt-2 text-sm text-gray-600">
             Don't have an account?{" "}

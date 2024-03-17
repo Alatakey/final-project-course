@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const consts_1 = require("./consts");
+const app_1 = require("./app");
 function main() {
     const hello = "Hello, world!";
-    console.log("Greeting:", hello + " " + consts_1.PI);
-    console.log("Check export: ", consts_1.PI);
+    console.log("Greeting:", hello);
+    console.log("Start Server...");
+    (0, app_1.startExpressServer)();
 }
 main();
 //# sourceMappingURL=index.js.map

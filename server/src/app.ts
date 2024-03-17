@@ -27,7 +27,23 @@ export async function startExpressServer() {
   app.use(cors());
 
   // Log all requests and responses
-  app.use(morgan("dev"));
+  app.use(
+    morgan((tokens, req, res) => {
+      return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        "Request Body:",
+        JSON.stringify(req.body),
+        "Response Body:",
+        JSON.stringify(res.locals.body),
+        tokens.status(req, res),
+        tokens.res(req, res, "content-length"),
+        "-",
+        tokens["response-time"](req, res),
+        "ms",
+      ].join(" ");
+    })
+  );
 
   // Error handling middleware
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
