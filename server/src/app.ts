@@ -1,17 +1,16 @@
 import express, { Express, NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import { DB_CONNECTION_URL } from "./consts";
-import bcrypt from "bcrypt";
 import {
   addUserToDb,
   getAllUsersFromDb,
   getLoginToken,
   getUserFromDbByName,
 } from "./handler";
-import { UserDoc, UserModel } from "./schemas/users-schema";
+import { UserDoc } from "./schemas/users-schema";
 import cors from "cors";
 import morgan from "morgan";
-import dayjs from "dayjs";
+import colorfulMorganFormat from "./utils/morgan";
 
 export async function startExpressServer() {
   // Create Express app
@@ -27,23 +26,7 @@ export async function startExpressServer() {
   app.use(cors());
 
   // Log all requests and responses
-  app.use(
-    morgan((tokens, req, res) => {
-      return [
-        tokens.method(req, res),
-        tokens.url(req, res),
-        "Request Body:",
-        JSON.stringify(req.body),
-        "Response Body:",
-        JSON.stringify(res.locals.body),
-        tokens.status(req, res),
-        tokens.res(req, res, "content-length"),
-        "-",
-        tokens["response-time"](req, res),
-        "ms",
-      ].join(" ");
-    })
-  );
+  app.use(morgan(colorfulMorganFormat));
 
   // Error handling middleware
   app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
@@ -92,13 +75,13 @@ export async function startExpressServer() {
     const userId = req.params.id;
     const result = await getUserFromDbByName(userId);
 
-    if (!result.data) {
+    if (result.isErr()) {
       return res.status(404).send(result.error);
     }
 
     // Remove hashedPassword field from the user object
     const { hashedPassword, ...userWithoutHashedPassword } =
-      result.data.toObject();
+      result.value.toObject();
 
     res.send(userWithoutHashedPassword);
   });
@@ -147,7 +130,7 @@ export async function startExpressServer() {
       password,
     });
 
-    if (!result.isOk) {
+    if (result.isErr()) {
       return res.status(400).send(result.error);
     }
     res.send("User registered successfully.");
@@ -161,10 +144,10 @@ export async function startExpressServer() {
     }
     const loginTokenRes = await getLoginToken(name, password);
 
-    if (!loginTokenRes.data) {
+    if (loginTokenRes.isErr()) {
       return res.status(401).send(loginTokenRes.error);
     }
-    const token = loginTokenRes.data;
+    const token = loginTokenRes.value;
 
     // Return token
     res.json({ token, name });

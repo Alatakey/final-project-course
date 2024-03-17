@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
-import { ResultValue, ResultBool, SignData } from "./interfaces";
+import { SignData } from "./interfaces";
 import { UserDoc, UserModel } from "./schemas/users-schema";
 import bcrypt from "bcrypt";
 import dayjs from "dayjs";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "./consts";
+import { Result, err, ok } from "neverthrow";
 
 export async function getAllUsersFromDb(): Promise<UserDoc[]> {
   try {
@@ -18,37 +19,29 @@ export async function getAllUsersFromDb(): Promise<UserDoc[]> {
 
 export async function getUserFromDbByName(
   name: string
-): Promise<ResultValue<UserDoc>> {
+): Promise<Result<UserDoc, string>> {
   try {
     const user = await UserModel.findOne({ name: name.toLowerCase() });
 
     if (!user) {
-      return {
-        data: null,
-        error: `User ${name} not found`,
-      };
+      return err(`User ${name} not found`);
     }
-    return { data: user };
+    return ok(user);
   } catch (error) {
-    console.error("Error fetching user from the database:", error);
-    throw new Error("Failed to fetch user from the database");
+    return err("Failed to fetch user from the database");
   }
 }
 export async function getUserFromDbByEmail(
   email: string
-): Promise<ResultValue<UserDoc>> {
+): Promise<Result<UserDoc, string>> {
   try {
     const user = await UserModel.findOne({ email: email });
     if (!user) {
-      return {
-        data: null,
-        error: `User ${email} not found`,
-      };
+      return err(`User ${email} not found`);
     }
-    return { data: user };
+    return ok(user);
   } catch (error) {
-    console.error("Error fetching user from the database:", error);
-    throw new Error("Failed to fetch user from the database");
+    return err("Failed to fetch user from the database");
   }
 }
 
@@ -59,7 +52,9 @@ interface AddUserParams {
   email: string;
   password: string;
 }
-export async function addUserToDb(params: AddUserParams): Promise<ResultBool> {
+export async function addUserToDb(
+  params: AddUserParams
+): Promise<Result<void, string>> {
   // Hash the password
   const hashedPassword = hashPassword(params.password);
 
@@ -75,20 +70,14 @@ export async function addUserToDb(params: AddUserParams): Promise<ResultBool> {
 
   const userExists = await isUserExistsInDb(newUser.name, newUser.email);
   if (userExists) {
-    return {
-      isOk: false,
-      error: `UserName ${newUser.name} or Email ${newUser.email} already exists`,
-    };
+    return err("User already exists");
   }
-
   try {
     // Save the user to the database
     await newUser.save();
-    return { isOk: true };
+    return ok(void 0);
   } catch (error) {
-    // Handle any errors that occur during saving
-    console.error("Error adding user to database:", error);
-    return { isOk: false, error: "Failed to add user to database" };
+    return err("Failed to add user to database");
   }
 }
 
@@ -124,21 +113,18 @@ export async function isUserExistsInDb(
 export async function getLoginToken(
   userName: string,
   password: string
-): Promise<ResultValue<string>> {
+): Promise<Result<string, string>> {
   // Find user by username
   const smallerName = userName.toLowerCase();
-  const foundUserRes: ResultValue<UserDoc> = await getUserFromDbByName(
+  const foundUserRes: Result<UserDoc, string> = await getUserFromDbByName(
     smallerName
   );
 
-  if (!foundUserRes.data) {
-    return {
-      data: null,
-      error: "Invalid username or password",
-    };
+  if (foundUserRes.isErr()) {
+    return err("Invalid username or password");
   }
 
-  const foundUser: UserDoc = foundUserRes.data;
+  const foundUser: UserDoc = foundUserRes.value;
 
   // Check password
   const passwordMatch: boolean = await bcrypt.compare(
@@ -147,10 +133,7 @@ export async function getLoginToken(
   );
 
   if (!passwordMatch) {
-    return {
-      data: null,
-      error: "Invalid username or password",
-    };
+    return err("Invalid username or password");
   }
 
   // Create object to sign
@@ -164,5 +147,5 @@ export async function getLoginToken(
     expiresIn: "24h",
   });
 
-  return { data: token };
+  return ok(token);
 }
