@@ -35,7 +35,7 @@ export async function getUserFromDbByEmail(
   email: string
 ): Promise<Result<UserDoc, string>> {
   try {
-    const user = await UserModel.findOne({ email: email });
+    const user = await UserModel.findOne({ email: email.toLowerCase() });
     if (!user) {
       return err(`User ${email} not found`);
     }
@@ -58,13 +58,12 @@ export async function addUserToDb(
   // Hash the password
   const hashedPassword = hashPassword(params.password);
 
-  const smallerName = params.name.toLowerCase();
   // Create a new user document
   const newUser: UserDoc = new UserModel({
-    name: smallerName,
+    name: params.name.toLowerCase(),
     date: dayjs(params.date).toDate(),
     country: params.country,
-    email: params.email,
+    email: params.email.toLowerCase(),
     hashedPassword,
   });
 
@@ -94,7 +93,7 @@ export async function isUserExistsInDb(
   try {
     // Find a user with the given userName or email
     const existingUser = await UserModel.findOne({
-      $or: [{ name: userName }, { email }],
+      $or: [{ name: userName.toLowerCase() }, { email: email.toLowerCase() }],
     });
 
     // If a user with the given userName or email is found, return true
@@ -105,7 +104,7 @@ export async function isUserExistsInDb(
     return false;
   } catch (error) {
     // If an error occurs during the database operation, log it and return false
-    console.error("Error checking if user exists:", error);
+    console.error("Error checking if user exists:", error.message);
     return false;
   }
 }
@@ -115,9 +114,8 @@ export async function getLoginToken(
   password: string
 ): Promise<Result<string, string>> {
   // Find user by username
-  const smallerName = userName.toLowerCase();
   const foundUserRes: Result<UserDoc, string> = await getUserFromDbByName(
-    smallerName
+    userName.toLowerCase()
   );
 
   if (foundUserRes.isErr()) {
