@@ -9,8 +9,13 @@ import { Result, err, ok } from "neverthrow";
 import BlogModel, { BlogDocument } from "./schemas/blog-schema";
 
 export function removeSensitiveDataFromUser(userDoc: UserDoc): UserResponse {
-  const { hashedPassword, ...user } = userDoc.toObject();
-  return user;
+  return {
+    name: userDoc.name,
+    email: userDoc.email,
+    date: userDoc.date,
+    country: userDoc.country,
+    _id: userDoc._id,
+  };
 }
 
 export async function getAllUsersFromDb(): Promise<UserDoc[]> {
