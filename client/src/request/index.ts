@@ -188,7 +188,7 @@ export async function fetchAuthorsWithBlogs(): Promise<
 > {
   try {
     const response: AxiosResponse<UserResponse[]> = await axios.get(
-      `${API_URL}/users/withBlogs`
+      `${API_URL}/users-with-blogs`
     );
     return ok(response.data);
   } catch (error: any) {

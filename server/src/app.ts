@@ -212,12 +212,17 @@ export async function startExpressServer() {
     }
   );
 
-  app.get("/users/withBlogs", async (req: Request, res: Response) => {
+  app.get("/users-with-blogs", async (req: Request, res: Response) => {
     try {
-      const usersWithBlogs: UserDoc[] = await getAllUsersWithBlogs();
-      const usersWithBlogsWithoutSensitiveData = usersWithBlogs.map((user) => {
-        return removeSensitiveDataFromUser(user);
-      });
+      const usersWithBlogsRes = await getAllUsersWithBlogs();
+      if (usersWithBlogsRes.isErr()) {
+        return res.status(500).send(usersWithBlogsRes.error);
+      }
+      const usersWithBlogsWithoutSensitiveData = usersWithBlogsRes.value.map(
+        (user) => {
+          return removeSensitiveDataFromUser(user);
+        }
+      );
       res.send(usersWithBlogsWithoutSensitiveData);
     } catch (error) {
       console.error("Error fetching users with blogs:", error.message);

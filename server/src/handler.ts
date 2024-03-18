@@ -222,7 +222,9 @@ export async function fetchBlogsByUserId(
   }
 }
 
-export async function getAllUsersWithBlogs(): Promise<UserDoc[]> {
+export async function getAllUsersWithBlogs(): Promise<
+  Result<UserDoc[], string>
+> {
   try {
     const usersWithBlogs: UserDoc[] = await BlogModel.aggregate([
       {
@@ -252,9 +254,9 @@ export async function getAllUsersWithBlogs(): Promise<UserDoc[]> {
       },
     ]);
 
-    return usersWithBlogs;
+    return ok(usersWithBlogs || []);
   } catch (error) {
     console.error("Error fetching users with blogs:", error.message);
-    throw new Error("Failed to fetch users with blogs");
+    return err("Failed to fetch users with blogs");
   }
 }
