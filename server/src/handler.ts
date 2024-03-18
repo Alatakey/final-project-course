@@ -216,3 +216,40 @@ export async function fetchBlogsByUserId(
     return err("Failed to fetch blogs by userId");
   }
 }
+
+export async function getAllUsersWithBlogs(): Promise<UserDoc[]> {
+  try {
+    const usersWithBlogs: UserDoc[] = await BlogModel.aggregate([
+      {
+        $group: {
+          _id: "$userId",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $project: {
+          _id: "$user._id",
+          name: "$user.name",
+          date: "$user.date",
+          country: "$user.country",
+          email: "$user.email",
+        },
+      },
+    ]);
+
+    return usersWithBlogs;
+  } catch (error) {
+    console.error("Error fetching users with blogs:", error.message);
+    throw new Error("Failed to fetch users with blogs");
+  }
+}

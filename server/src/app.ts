@@ -7,6 +7,7 @@ import {
   deleteBlog,
   editBlog,
   getAllUsersFromDb,
+  getAllUsersWithBlogs,
   getLoginToken,
   getUserFromDbByName,
 } from "./handler";
@@ -212,7 +213,16 @@ export async function startExpressServer() {
     }
   );
 
-  // Start the Express server
+  app.get("/users/withblogs", async (req: Request, res: Response) => {
+    try {
+      const usersWithBlogs: UserDoc[] = await getAllUsersWithBlogs();
+      res.send(usersWithBlogs);
+    } catch (error) {
+      console.error("Error fetching users with blogs:", error.message);
+      res.status(500).send("Internal Server Error");
+    }
+  });
+
   app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
   });
