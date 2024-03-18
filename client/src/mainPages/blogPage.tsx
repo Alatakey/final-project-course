@@ -111,7 +111,9 @@ export default function BlogPage(): JSX.Element {
               key={author._id}
               onClick={() => setSelectedAuthor(author._id)}
               className={`bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded mr-2 mb-2 ${
-                selectedAuthor === author._id ? "bg-blue-500 text-white" : ""
+                selectedAuthor === author._id
+                  ? "bg-blue-500 text-green-500"
+                  : ""
               }`}
             >
               {author.name}
