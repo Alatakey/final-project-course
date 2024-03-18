@@ -22,6 +22,7 @@ import PageBuilder from "./jsPages/pageBuilder/pageBuilder";
 import XOGame from "./jsPages/x_oGame/x_oGame";
 import LoginPage from "./mainPages/loginPage";
 import BlogPage from "./mainPages/blogPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const router = createBrowserRouter([
   {
@@ -102,16 +103,20 @@ const router = createBrowserRouter([
   },
 ]);
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <div className="App">
-      <div className="z-10 sticky top-0">
-        <NavBar />
-      </div>
+    <QueryClientProvider client={queryClient}>
+      <div className="App">
+        <div className="z-10 sticky top-0">
+          <NavBar />
+        </div>
 
-      <RouterProvider router={router} />
-      <Footer />
-    </div>
+        <RouterProvider router={router} />
+        <Footer />
+      </div>
+    </QueryClientProvider>
   );
 }
 export default App;

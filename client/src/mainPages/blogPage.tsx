@@ -4,37 +4,35 @@ import {
   createBlog,
   editBlog,
   deleteBlog,
+  fetchAuthorsWithBlogs,
 } from "../request/index";
 import { API_URL } from "../consts";
-import { Author, Blog } from "../interfaces";
+import { Blog, UserResponse } from "../interfaces";
 import useToken from "../hooks/useToken";
+import { useQuery } from "@tanstack/react-query";
 
 export default function BlogPage(): JSX.Element {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [newBlogInputText, setNewBlogInputText] = useState<string>("");
   const [selectedAuthor, setSelectedAuthor] = useState<string>("");
-  const [authors, setAuthors] = useState<Author[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const { userToken } = useToken();
   const [error, setError] = useState<string>("");
 
-  useEffect(() => {
-    fetchAuthors();
-  }, []);
-
-  const fetchAuthors = async () => {
-    try {
-      const response = await fetch(`${API_URL}/authors`);
-      if (!response.ok) {
+  const { data: authorsWithBlogs = [] } = useQuery({
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: false,
+    queryKey: ["authorsWithBlogs"],
+    queryFn: async (): Promise<UserResponse[]> => {
+      const res = await fetchAuthorsWithBlogs();
+      if (!res.isOk()) {
         setError("Failed to fetch authors");
-        return;
+        return [];
       }
-      const authorsData: Author[] = await response.json();
-      setAuthors(authorsData);
-    } catch (error: any) {
-      setError("Error fetching authors: " + error.message);
-    }
-  };
+      return res.value;
+    },
+  });
 
   const handlePost = async () => {
     if (!userToken?.token) {
@@ -97,7 +95,7 @@ export default function BlogPage(): JSX.Element {
     }
   };
 
-  const filteredAuthors = authors.filter((author) =>
+  const filteredAuthors = authorsWithBlogs.filter((author) =>
     author.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

@@ -10,6 +10,7 @@ import {
   getAllUsersWithBlogs,
   getLoginToken,
   getUserFromDbByName,
+  removeSensitiveDataFromUser,
 } from "./handler";
 import { UserDoc } from "./schemas/users-schema";
 import cors from "cors";
@@ -61,8 +62,7 @@ export async function startExpressServer() {
 
     // Remove hashedPassword field from each user object
     const usersWithoutHashedPassword = users.map((user: UserDoc) => {
-      const { hashedPassword, ...userWithoutHashedPassword } = user.toObject();
-      return userWithoutHashedPassword;
+      return removeSensitiveDataFromUser(user);
     });
 
     res.send({
@@ -86,8 +86,7 @@ export async function startExpressServer() {
     }
 
     // Remove hashedPassword field from the user object
-    const { hashedPassword, ...userWithoutHashedPassword } =
-      result.value.toObject();
+    const userWithoutHashedPassword = removeSensitiveDataFromUser(result.value);
 
     res.send(userWithoutHashedPassword);
   });
@@ -213,10 +212,13 @@ export async function startExpressServer() {
     }
   );
 
-  app.get("/users/withblogs", async (req: Request, res: Response) => {
+  app.get("/users/withBlogs", async (req: Request, res: Response) => {
     try {
       const usersWithBlogs: UserDoc[] = await getAllUsersWithBlogs();
-      res.send(usersWithBlogs);
+      const usersWithBlogsWithoutSensitiveData = usersWithBlogs.map((user) => {
+        return removeSensitiveDataFromUser(user);
+      });
+      res.send(usersWithBlogsWithoutSensitiveData);
     } catch (error) {
       console.error("Error fetching users with blogs:", error.message);
       res.status(500).send("Internal Server Error");

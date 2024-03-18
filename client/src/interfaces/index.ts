@@ -16,3 +16,11 @@ export interface Author {
   _id: string;
   name: string;
 }
+
+export interface UserResponse {
+  name: string;
+  email: string;
+  date: Date;
+  country: string;
+  _id: string;
+}

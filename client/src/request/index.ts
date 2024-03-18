@@ -1,5 +1,5 @@
 import axios, { Axios, AxiosResponse } from "axios";
-import { RegisterFormData } from "../interfaces";
+import { RegisterFormData, UserResponse } from "../interfaces";
 import { API_URL } from "../consts";
 import dayjs from "dayjs";
 import { Ok, Result, ResultAsync, err, ok } from "neverthrow";
@@ -173,6 +173,24 @@ export async function deleteBlog(
       },
     });
     return ok(undefined);
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data || "Unknown error";
+      return err(errorMessage);
+    } else {
+      return err(error.message);
+    }
+  }
+}
+
+export async function fetchAuthorsWithBlogs(): Promise<
+  Result<UserResponse[], string>
+> {
+  try {
+    const response: AxiosResponse<UserResponse[]> = await axios.get(
+      `${API_URL}/users/withBlogs`
+    );
+    return ok(response.data);
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
       const errorMessage = error.response?.data || "Unknown error";

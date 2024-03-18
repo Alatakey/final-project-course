@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { SignData } from "./interfaces";
+import { SignData, UserResponse } from "./interfaces";
 import { UserDoc, UserModel } from "./schemas/users-schema";
 import bcrypt from "bcrypt";
 import dayjs from "dayjs";
@@ -7,6 +7,11 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "./consts";
 import { Result, err, ok } from "neverthrow";
 import BlogModel, { BlogDocument } from "./schemas/blog-schema";
+
+export function removeSensitiveDataFromUser(userDoc: UserDoc): UserResponse {
+  const { hashedPassword, ...user } = userDoc.toObject();
+  return user;
+}
 
 export async function getAllUsersFromDb(): Promise<UserDoc[]> {
   try {
