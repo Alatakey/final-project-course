@@ -41,6 +41,11 @@ function DesktopNavbar() {
         </a>
       </li>
       <li className="p-4">
+        <a href="BlogPage" className="text-white hover:text-gray-300">
+          Blogs
+        </a>
+      </li>
+      <li className="p-4">
         <a href="About" className="text-white hover:text-gray-300">
           About
         </a>
@@ -87,6 +92,11 @@ function MobileNavbar({ isNavOpen, toggleNav }: MobileNavbarProps) {
           <li className="p-4 border-b border-gray-700">
             <a href="homePage" className="text-white hover:text-gray-300">
               Home
+            </a>
+          </li>
+          <li className="p-4 border-b border-gray-700">
+            <a href="blogPage" className="text-white hover:text-gray-300">
+              Blogs
             </a>
           </li>
           <li className="p-4 border-b border-gray-700">

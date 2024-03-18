@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "./consts";
 import { Result, err, ok } from "neverthrow";
+import BlogModel, { BlogDocument } from "./schemas/blog-schema";
 
 export async function getAllUsersFromDb(): Promise<UserDoc[]> {
   try {
@@ -146,4 +147,69 @@ export async function getLoginToken(
   });
 
   return ok(token);
+}
+
+interface CreateBlogParams {
+  userId: string;
+  text: string;
+}
+
+export async function createBlog(
+  params: CreateBlogParams
+): Promise<Result<BlogDocument, string>> {
+  try {
+    const newBlog = new BlogModel({ ...params });
+    const savedBlog = await newBlog.save();
+    return ok(savedBlog);
+  } catch (error) {
+    console.error("Error creating blog:", error.message);
+    return err("Failed to create blog");
+  }
+}
+
+export async function editBlog(
+  blogId: string,
+  newText: string
+): Promise<Result<BlogDocument | null, string>> {
+  try {
+    const updatedBlog = await BlogModel.findByIdAndUpdate(
+      blogId,
+      { text: newText },
+      { new: true }
+    );
+    if (!updatedBlog) {
+      return err("Blog not found");
+    }
+    return ok(updatedBlog);
+  } catch (error) {
+    console.error("Error editing blog:", error.message);
+    return err("Failed to edit blog");
+  }
+}
+
+export async function deleteBlog(
+  blogId: string
+): Promise<Result<boolean, string>> {
+  try {
+    const deletedBlog = await BlogModel.findByIdAndDelete(blogId);
+    if (!deletedBlog) {
+      return err("Blog not found");
+    }
+    return ok(true);
+  } catch (error) {
+    console.error("Error deleting blog:", error.message);
+    return err("Failed to delete blog");
+  }
+}
+
+export async function fetchBlogsByUserId(
+  userId: string
+): Promise<Result<BlogDocument[], string>> {
+  try {
+    const blogs = await BlogModel.find({ userId });
+    return ok(blogs);
+  } catch (error) {
+    console.error("Error fetching blogs by userId:", error.message);
+    return err("Failed to fetch blogs by userId");
+  }
 }

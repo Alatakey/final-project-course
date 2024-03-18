@@ -11,6 +11,7 @@ import { UserDoc } from "./schemas/users-schema";
 import cors from "cors";
 import morgan from "morgan";
 import colorfulMorganFormat from "./utils/morgan";
+import { validateUser } from "./utils/middleware";
 
 export async function startExpressServer() {
   // Create Express app
@@ -152,6 +153,60 @@ export async function startExpressServer() {
     // Return token
     res.json({ token, name });
   });
+
+  // 1. Endpoint to fetch an author's blogs
+  app.get("/blogs/:userId", async (req: Request, res: Response) => {
+    const userId = req.params.userId;
+
+    // Your logic to fetch author's blogs
+  });
+
+  // 2. Endpoint to create a new blog by validated user
+  app.post("/blogs", validateUser, async (req: Request, res: Response) => {
+    const { userId } = req.user!;
+    const { text } = req.body;
+
+    const result = await createBlog({ userId, text });
+    if (result.isErr()) {
+      return res.status(500).send(result.error);
+    }
+    const newBlog = result.value;
+    return res.status(201).json(newBlog);
+  });
+
+  // 3. Endpoint to edit a blog by validated user
+  app.put("/blogs/:id", validateUser, async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { userId } = req.user!;
+    const { text } = req.body;
+
+    // Check if the user is the owner of the blog
+
+    const result = await editBlog(id, userId, text);
+    if (result.isErr()) {
+      return res.status(500).send(result.error);
+    }
+    const editedBlog = result.value;
+    return res.status(200).json(editedBlog);
+  });
+
+  // 4. Endpoint to delete a blog by validated user
+  app.delete(
+    "/blogs/:id",
+    validateUser,
+    async (req: Request, res: Response) => {
+      const { id } = req.params;
+      const { userId } = req.user!;
+
+      // Check if the user is the owner of the blog
+
+      const result = await deleteBlog(id, userId);
+      if (result.isErr()) {
+        return res.status(500).send(result.error);
+      }
+      return res.status(204).send();
+    }
+  );
 
   // Start the Express server
   app.listen(port, () => {
