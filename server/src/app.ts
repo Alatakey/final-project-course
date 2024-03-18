@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 import { DB_CONNECTION_URL } from "./consts";
 import {
   addUserToDb,
+  createBlog,
+  deleteBlog,
+  editBlog,
   getAllUsersFromDb,
   getLoginToken,
   getUserFromDbByName,
@@ -12,6 +15,7 @@ import cors from "cors";
 import morgan from "morgan";
 import colorfulMorganFormat from "./utils/morgan";
 import { validateUser } from "./utils/middleware";
+import { SignData } from "./interfaces";
 
 export async function startExpressServer() {
   // Create Express app
@@ -163,10 +167,10 @@ export async function startExpressServer() {
 
   // 2. Endpoint to create a new blog by validated user
   app.post("/blogs", validateUser, async (req: Request, res: Response) => {
-    const { userId } = req.user!;
+    const signData: SignData = req.signedData;
     const { text } = req.body;
 
-    const result = await createBlog({ userId, text });
+    const result = await createBlog({ userId: signData.userId, text });
     if (result.isErr()) {
       return res.status(500).send(result.error);
     }
@@ -177,12 +181,12 @@ export async function startExpressServer() {
   // 3. Endpoint to edit a blog by validated user
   app.put("/blogs/:id", validateUser, async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { userId } = req.user!;
+    const signData = req.signedData;
     const { text } = req.body;
 
     // Check if the user is the owner of the blog
 
-    const result = await editBlog(id, userId, text);
+    const result = await editBlog(id, signData.userId, text);
     if (result.isErr()) {
       return res.status(500).send(result.error);
     }
@@ -196,11 +200,11 @@ export async function startExpressServer() {
     validateUser,
     async (req: Request, res: Response) => {
       const { id } = req.params;
-      const { userId } = req.user!;
+      const signData = req.signedData;
 
       // Check if the user is the owner of the blog
 
-      const result = await deleteBlog(id, userId);
+      const result = await deleteBlog(id, signData.userId);
       if (result.isErr()) {
         return res.status(500).send(result.error);
       }

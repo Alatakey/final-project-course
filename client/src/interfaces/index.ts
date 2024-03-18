@@ -6,12 +6,13 @@ export interface RegisterFormData {
   dateOfBirth: string;
   country: string;
 }
-export interface ResultBool {
-  isOk: boolean;
-  error?: string;
+export interface Blog {
+  _id: string;
+  text: string;
+  userId: string;
 }
 
-export interface ResultValue<T> {
-  error?: string;
-  data: T | null;
+export interface Author {
+  _id: string;
+  name: string;
 }

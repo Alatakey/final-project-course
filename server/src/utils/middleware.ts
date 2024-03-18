@@ -7,7 +7,7 @@ import { SignData } from "../interfaces";
 declare global {
   namespace Express {
     interface Request {
-      user?: SignData; // Add user property to Request interface
+      signedData?: SignData; // Add user property to Request interface
     }
   }
 }
@@ -24,7 +24,7 @@ export async function validateUser(
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as SignData;
-    req.user = decoded;
+    req.signedData = decoded;
     next();
   } catch (error) {
     return res.status(403).send("Invalid token");

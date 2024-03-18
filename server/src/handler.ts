@@ -137,6 +137,7 @@ export async function getLoginToken(
 
   // Create object to sign
   const objectToSign: SignData = {
+    userId: foundUser._id,
     name: foundUser.name,
     email: foundUser.email,
   };
@@ -169,6 +170,7 @@ export async function createBlog(
 
 export async function editBlog(
   blogId: string,
+  userId: string,
   newText: string
 ): Promise<Result<BlogDocument | null, string>> {
   try {
@@ -188,7 +190,8 @@ export async function editBlog(
 }
 
 export async function deleteBlog(
-  blogId: string
+  blogId: string,
+  userId: string
 ): Promise<Result<boolean, string>> {
   try {
     const deletedBlog = await BlogModel.findByIdAndDelete(blogId);

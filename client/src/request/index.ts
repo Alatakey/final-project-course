@@ -84,3 +84,101 @@ export async function sendLoginToServer(
     }
   }
 }
+
+import { Blog } from "../interfaces";
+
+export async function fetchBlogsByUserId(
+  userId: string,
+  token: string
+): Promise<Result<Blog[], string>> {
+  try {
+    const response: AxiosResponse<Blog[]> = await axios.get(
+      `${API_URL}/blogs/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return ok(response.data);
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data || "Unknown error";
+      return err(errorMessage);
+    } else {
+      return err(error.message);
+    }
+  }
+}
+
+export async function createBlog(
+  text: string,
+  token: string
+): Promise<Result<Blog, string>> {
+  try {
+    const response: AxiosResponse<Blog> = await axios.post(
+      `${API_URL}/blogs`,
+      { text },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return ok(response.data);
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data || "Unknown error";
+      return err(errorMessage);
+    } else {
+      return err(error.message);
+    }
+  }
+}
+
+export async function editBlog(
+  id: string,
+  text: string,
+  token: string
+): Promise<Result<Blog, string>> {
+  try {
+    const response: AxiosResponse<Blog> = await axios.put(
+      `${API_URL}/blogs/${id}`,
+      { text },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return ok(response.data);
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data || "Unknown error";
+      return err(errorMessage);
+    } else {
+      return err(error.message);
+    }
+  }
+}
+
+export async function deleteBlog(
+  id: string,
+  token: string
+): Promise<Result<void, string>> {
+  try {
+    await axios.delete(`${API_URL}/blogs/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return ok(undefined);
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data || "Unknown error";
+      return err(errorMessage);
+    } else {
+      return err(error.message);
+    }
+  }
+}
