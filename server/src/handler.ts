@@ -119,11 +119,15 @@ export async function isUserExistsInDb(
     return false;
   }
 }
+interface GetLoginResult {
+  token: string;
+  user: UserResponse;
+}
 
-export async function getLoginToken(
+export async function getLoginTokenAndUser(
   userName: string,
   password: string
-): Promise<Result<string, string>> {
+): Promise<Result<GetLoginResult, string>> {
   // Find user by username
   const foundUserRes: Result<UserDoc, string> = await getUserFromDbByName(
     userName.toLowerCase()
@@ -157,7 +161,7 @@ export async function getLoginToken(
     expiresIn: "24h",
   });
 
-  return ok(token);
+  return ok({ token, user: removeSensitiveDataFromUser(foundUser) });
 }
 
 interface CreateBlogParams {

@@ -19,7 +19,7 @@ export default function Navbar() {
     <div className="flex justify-end items-center h-24 w-full px-4 bg-gray-800 rounded-b-lg">
       {userToken ? (
         <>
-          <LoggedInText name={userToken.name} />
+          <LoggedInText name={userToken.user.name} />
           <button onClick={handleLogout} className="text-white">
             Logout
           </button>

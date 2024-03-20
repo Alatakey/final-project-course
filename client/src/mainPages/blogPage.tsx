@@ -178,6 +178,7 @@ export default function BlogPage(): JSX.Element {
             <BlogPost
               key={blog._id}
               blog={blog}
+              isMyBlog={blog.userId === userToken?.user._id}
               handleEdit={handleEdit}
               handleDelete={handleDelete}
               author={selectedAuthor}
@@ -194,8 +195,15 @@ interface BlogPostProps {
   author: UserResponse | undefined;
   handleEdit: (blogId: string, newText: string) => void;
   handleDelete: (blogId: string) => void;
+  isMyBlog: boolean;
 }
-function BlogPost({ blog, handleEdit, handleDelete, author }: BlogPostProps) {
+function BlogPost({
+  blog,
+  handleEdit,
+  handleDelete,
+  author,
+  isMyBlog,
+}: BlogPostProps) {
   return (
     <div key={blog._id} className="border border-gray-300 rounded p-4 mb-4">
       <h3 className="text-xl font-bold mb-2">

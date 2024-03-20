@@ -43,7 +43,7 @@ export async function sendRegisterToServer(
 
 interface SendLoginToServerResult {
   token: string;
-  name: string;
+  user: UserResponse;
 }
 export async function sendLoginToServer(
   userName: string,

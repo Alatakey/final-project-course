@@ -22,7 +22,7 @@ export default function LoginPage() {
       // Login successful
       console.log("Login successful");
       const tokenObject: UserToken = {
-        name: result.value.name,
+        user: result.value.user,
         token: result.value.token,
       };
       setToken(tokenObject);

@@ -9,7 +9,7 @@ import {
   fetchBlogsByUserId,
   getAllUsersFromDb,
   getAllUsersWithBlogs,
-  getLoginToken,
+  getLoginTokenAndUser,
   getUserFromDbByName,
   removeSensitiveDataFromUser,
 } from "./handler";
@@ -148,15 +148,15 @@ export async function startExpressServer() {
     if (!name || !password) {
       return res.status(400).send("Missing name or password");
     }
-    const loginTokenRes = await getLoginToken(name, password);
+    const loginTokenRes = await getLoginTokenAndUser(name, password);
 
     if (loginTokenRes.isErr()) {
       return res.status(401).send(loginTokenRes.error);
     }
-    const token = loginTokenRes.value;
+    const { token, user } = loginTokenRes.value;
 
     // Return token
-    res.json({ token, name });
+    res.json({ token, user });
   });
 
   // 1. Endpoint to fetch an author's blogs

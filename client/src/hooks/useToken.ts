@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { UserResponse } from "../interfaces";
 
 export interface UserToken {
   token: string;
-  name: string;
+  user: UserResponse;
 }
 
 export default function useToken() {
