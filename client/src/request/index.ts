@@ -88,17 +88,11 @@ export async function sendLoginToServer(
 import { Blog } from "../interfaces";
 
 export async function fetchBlogsByUserId(
-  userId: string,
-  token: string
+  userId: string
 ): Promise<Result<Blog[], string>> {
   try {
     const response: AxiosResponse<Blog[]> = await axios.get(
-      `${API_URL}/blogs/${userId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+      `${API_URL}/blogs/${userId}`
     );
     return ok(response.data);
   } catch (error: any) {

@@ -6,6 +6,7 @@ import {
   createBlog,
   deleteBlog,
   editBlog,
+  fetchBlogsByUserId,
   getAllUsersFromDb,
   getAllUsersWithBlogs,
   getLoginToken,
@@ -161,8 +162,12 @@ export async function startExpressServer() {
   // 1. Endpoint to fetch an author's blogs
   app.get("/blogs/:userId", async (req: Request, res: Response) => {
     const userId = req.params.userId;
-
-    // Your logic to fetch author's blogs
+    const result = await fetchBlogsByUserId(userId);
+    if (result.isErr()) {
+      return res.status(500).send(result.error);
+    }
+    const blogs = result.value;
+    return res.status(200).json(blogs);
   });
 
   // 2. Endpoint to create a new blog by validated user

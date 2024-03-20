@@ -12,12 +12,33 @@ import useToken from "../hooks/useToken";
 import { useQuery } from "@tanstack/react-query";
 
 export default function BlogPage(): JSX.Element {
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [myNewBlogsToShow, setMyNewBlogsToShow] = useState<Blog[]>([]);
   const [newBlogInputText, setNewBlogInputText] = useState<string>("");
-  const [selectedAuthor, setSelectedAuthor] = useState<string>("");
+  const [selectedAuthor, setSelectedAuthor] = useState<
+    UserResponse | undefined
+  >(undefined);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const { userToken } = useToken();
   const [error, setError] = useState<string>("");
+
+  const { data: selectedAuthorBlogs = [] } = useQuery({
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: false,
+    queryKey: ["selectedAuthorBlogs", selectedAuthor?._id],
+    queryFn: async (): Promise<Blog[]> => {
+      if (!selectedAuthor) {
+        return [];
+      }
+      const res = await fetchBlogsByUserId(selectedAuthor._id);
+      if (!res.isOk()) {
+        setError("Failed to fetch authors");
+        return [];
+      }
+      return res.value;
+    },
+  });
+  const allBlogsToShow: Blog[] = [...myNewBlogsToShow, ...selectedAuthorBlogs];
 
   const { data: authorsWithBlogs = [] } = useQuery({
     refetchOnWindowFocus: false,
@@ -49,7 +70,7 @@ export default function BlogPage(): JSX.Element {
         return;
       }
       const newBlog: Blog = response.value;
-      setBlogs((prevBlogs) => [...prevBlogs, newBlog]);
+      setMyNewBlogsToShow((prevBlogs) => [...prevBlogs, newBlog]);
       setNewBlogInputText("");
     } catch (error: any) {
       setError("Error posting blog: " + error.message);
@@ -68,7 +89,7 @@ export default function BlogPage(): JSX.Element {
         return;
       }
       const editedBlog: Blog = response.value;
-      setBlogs((prevBlogs) =>
+      setMyNewBlogsToShow((prevBlogs) =>
         prevBlogs.map((blog) =>
           blog._id === editedBlog._id ? editedBlog : blog
         )
@@ -89,7 +110,9 @@ export default function BlogPage(): JSX.Element {
         setError("Failed to delete blog");
         return;
       }
-      setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog._id !== blogId));
+      setMyNewBlogsToShow((prevBlogs) =>
+        prevBlogs.filter((blog) => blog._id !== blogId)
+      );
     } catch (error: any) {
       setError("Error deleting blog: " + error.message);
     }
@@ -109,9 +132,9 @@ export default function BlogPage(): JSX.Element {
           {filteredAuthors.map((author) => (
             <button
               key={author._id}
-              onClick={() => setSelectedAuthor(author._id)}
+              onClick={() => setSelectedAuthor(author)}
               className={`bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded mr-2 mb-2 ${
-                selectedAuthor === author._id
+                selectedAuthor?._id === author._id
                   ? "bg-blue-500 text-green-500"
                   : ""
               }`}
@@ -150,29 +173,48 @@ export default function BlogPage(): JSX.Element {
       </button>
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Recent Blogs:</h2>
-        {blogs.map((blog) => (
-          <div
-            key={blog._id}
-            className="border border-gray-300 rounded p-4 mb-4"
-          >
-            <h3 className="text-xl font-bold mb-2">Author: {blog.userId}</h3>
-            <p>{blog.text}</p>
-            <div className="mt-2">
-              <button
-                onClick={() => handleEdit(blog._id, "New Text")} // Change "New Text" to desired new text
-                className="bg-green-500 text-white py-2 px-4 rounded mr-2 hover:bg-green-600"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(blog._id)}
-                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+        {allBlogsToShow.map((blog) => {
+          return (
+            <BlogPost
+              key={blog._id}
+              blog={blog}
+              handleEdit={handleEdit}
+              handleDelete={handleDelete}
+              author={selectedAuthor}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+interface BlogPostProps {
+  blog: Blog;
+  author: UserResponse | undefined;
+  handleEdit: (blogId: string, newText: string) => void;
+  handleDelete: (blogId: string) => void;
+}
+function BlogPost({ blog, handleEdit, handleDelete, author }: BlogPostProps) {
+  return (
+    <div key={blog._id} className="border border-gray-300 rounded p-4 mb-4">
+      <h3 className="text-xl font-bold mb-2">
+        Author: {author?.name || blog._id}
+      </h3>
+      <p>{blog.text}</p>
+      <div className="mt-2">
+        <button
+          onClick={() => handleEdit(blog._id, "New Text")} // Change "New Text" to desired new text
+          className="bg-green-500 text-white py-2 px-4 rounded mr-2 hover:bg-green-600"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => handleDelete(blog._id)}
+          className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+        >
+          Delete
+        </button>
       </div>
     </div>
   );

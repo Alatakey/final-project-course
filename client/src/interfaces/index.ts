@@ -12,11 +12,6 @@ export interface Blog {
   userId: string;
 }
 
-export interface Author {
-  _id: string;
-  name: string;
-}
-
 export interface UserResponse {
   name: string;
   email: string;
