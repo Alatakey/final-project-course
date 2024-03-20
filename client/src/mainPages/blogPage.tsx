@@ -121,22 +121,36 @@ export default function BlogPage(): JSX.Element {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Blog Page</h1>
+      <h1 className="text-3xl font-bold mb-4 border-b-2 pb-2">Blog Page</h1>
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
       <div className="mb-4">
-        <label className="block mb-2">
-          Blog Content:
-          <textarea
-            value={newBlogInputText}
-            onChange={(e) => setNewBlogInputText(e.target.value)}
-            className="block w-full border border-gray-300 rounded p-2"
-            rows={4}
-          />
-        </label>
+        <label className="block mb-2">Blog Content:</label>
+
+        <textarea
+          value={newBlogInputText}
+          onChange={(e) => setNewBlogInputText(e.target.value)}
+          className="block w-full border border-gray-300 rounded p-2"
+          rows={4}
+        />
       </div>
-      <h1 className="text-2xl font-bold mb-4">App author Blogs:</h1>
+      <button
+        onClick={handlePost}
+        className={clsx(
+          "bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mb-8",
+          {
+            "bg-gray-500": !userToken?.token,
+          }
+        )}
+        disabled={!userToken?.token}
+      >
+        Post Blog
+      </button>
+
       <div className="mb-4">
+        <h1 className="text-2xl font-bold mb-4 border-b-2 pb-2">
+          App author Blogs:
+        </h1>
         <label className="block mb-2">Search Author:</label>
         <input
           type="text"
@@ -146,6 +160,7 @@ export default function BlogPage(): JSX.Element {
           className="block w-full border border-gray-300 rounded p-2 mb-2"
         />
       </div>
+
       <div className="mb-4">
         <label className="block mb-2">Author:</label>
         <div className="flex flex-wrap">
@@ -167,12 +182,6 @@ export default function BlogPage(): JSX.Element {
         </div>
       </div>
 
-      <button
-        onClick={handlePost}
-        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-      >
-        Post Blog
-      </button>
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Recent Blogs:</h2>
         {selectedAuthorBlogs.map((blog) => {
