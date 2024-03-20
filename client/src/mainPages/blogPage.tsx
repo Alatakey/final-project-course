@@ -10,9 +10,9 @@ import { API_URL } from "../consts";
 import { Blog, UserResponse } from "../interfaces";
 import useToken from "../hooks/useToken";
 import { useQuery } from "@tanstack/react-query";
+import clsx from "clsx";
 
 export default function BlogPage(): JSX.Element {
-  const [myNewBlogsToShow, setMyNewBlogsToShow] = useState<Blog[]>([]);
   const [newBlogInputText, setNewBlogInputText] = useState<string>("");
   const [selectedAuthor, setSelectedAuthor] = useState<
     UserResponse | undefined
@@ -21,7 +21,10 @@ export default function BlogPage(): JSX.Element {
   const { userToken } = useToken();
   const [error, setError] = useState<string>("");
 
-  const { data: selectedAuthorBlogs = [] } = useQuery({
+  const {
+    data: selectedAuthorBlogs = [],
+    refetch: refetchSelectedAuthorBlogs,
+  } = useQuery({
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: false,
@@ -38,7 +41,6 @@ export default function BlogPage(): JSX.Element {
       return res.value;
     },
   });
-  const allBlogsToShow: Blog[] = [...myNewBlogsToShow, ...selectedAuthorBlogs];
 
   const { data: authorsWithBlogs = [] } = useQuery({
     refetchOnWindowFocus: false,
@@ -69,8 +71,8 @@ export default function BlogPage(): JSX.Element {
         setError("Failed to create blog");
         return;
       }
-      const newBlog: Blog = response.value;
-      setMyNewBlogsToShow((prevBlogs) => [...prevBlogs, newBlog]);
+      refetchSelectedAuthorBlogs();
+      setSelectedAuthor(userToken.user);
       setNewBlogInputText("");
     } catch (error: any) {
       setError("Error posting blog: " + error.message);
@@ -88,12 +90,7 @@ export default function BlogPage(): JSX.Element {
         setError("Failed to edit blog");
         return;
       }
-      const editedBlog: Blog = response.value;
-      setMyNewBlogsToShow((prevBlogs) =>
-        prevBlogs.map((blog) =>
-          blog._id === editedBlog._id ? editedBlog : blog
-        )
-      );
+      refetchSelectedAuthorBlogs();
     } catch (error: any) {
       setError("Error editing blog: " + error.message);
     }
@@ -110,9 +107,7 @@ export default function BlogPage(): JSX.Element {
         setError("Failed to delete blog");
         return;
       }
-      setMyNewBlogsToShow((prevBlogs) =>
-        prevBlogs.filter((blog) => blog._id !== blogId)
-      );
+      refetchSelectedAuthorBlogs();
     } catch (error: any) {
       setError("Error deleting blog: " + error.message);
     }
@@ -173,7 +168,7 @@ export default function BlogPage(): JSX.Element {
       </button>
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Recent Blogs:</h2>
-        {allBlogsToShow.map((blog) => {
+        {selectedAuthorBlogs.map((blog) => {
           return (
             <BlogPost
               key={blog._id}
@@ -246,14 +241,20 @@ function BlogPost({
         ) : (
           <button
             onClick={() => setIsEditing(true)}
-            className="bg-green-500 text-white py-2 px-4 rounded mr-2 hover:bg-green-600"
+            className={clsx(
+              "bg-green-500 text-white py-2 px-4 rounded mr-2 hover:bg-green-600",
+              { hidden: !isMyBlog }
+            )}
           >
             Edit
           </button>
         )}
         <button
           onClick={() => handleDelete(blog._id)}
-          className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+          className={clsx(
+            "bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600",
+            { hidden: !isMyBlog }
+          )}
         >
           Delete
         </button>
