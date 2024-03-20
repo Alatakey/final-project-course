@@ -204,19 +204,53 @@ function BlogPost({
   author,
   isMyBlog,
 }: BlogPostProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedText, setEditedText] = useState(blog.text);
+
+  const handleSaveEdit = () => {
+    handleEdit(blog._id, editedText);
+    setIsEditing(false);
+  };
+
   return (
     <div key={blog._id} className="border border-gray-300 rounded p-4 mb-4">
       <h3 className="text-xl font-bold mb-2">
         Author: {author?.name || blog._id}
       </h3>
-      <p>{blog.text}</p>
+      {isEditing ? (
+        <textarea
+          value={editedText}
+          onChange={(e) => setEditedText(e.target.value)}
+          className="block w-full border border-gray-300 rounded p-2 mb-2"
+          rows={4}
+        />
+      ) : (
+        <p>{blog.text}</p>
+      )}
       <div className="mt-2">
-        <button
-          onClick={() => handleEdit(blog._id, "New Text")} // Change "New Text" to desired new text
-          className="bg-green-500 text-white py-2 px-4 rounded mr-2 hover:bg-green-600"
-        >
-          Edit
-        </button>
+        {isEditing ? (
+          <>
+            <button
+              onClick={handleSaveEdit}
+              className="bg-blue-500 text-white py-2 px-4 rounded mr-2 hover:bg-blue-600"
+            >
+              Save
+            </button>
+            <button
+              onClick={() => setIsEditing(false)}
+              className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="bg-green-500 text-white py-2 px-4 rounded mr-2 hover:bg-green-600"
+          >
+            Edit
+          </button>
+        )}
         <button
           onClick={() => handleDelete(blog._id)}
           className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
