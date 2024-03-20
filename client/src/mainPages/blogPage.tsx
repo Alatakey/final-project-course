@@ -42,7 +42,7 @@ export default function BlogPage(): JSX.Element {
     },
   });
 
-  const { data: authorsWithBlogs = [] } = useQuery({
+  const { data: authorsWithBlogs = [], refetch: refetchAuthors } = useQuery({
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: false,
@@ -73,6 +73,7 @@ export default function BlogPage(): JSX.Element {
       }
       refetchSelectedAuthorBlogs();
       setSelectedAuthor(userToken.user);
+      refetchAuthors();
       setNewBlogInputText("");
     } catch (error: any) {
       setError("Error posting blog: " + error.message);
@@ -108,6 +109,7 @@ export default function BlogPage(): JSX.Element {
         return;
       }
       refetchSelectedAuthorBlogs();
+      refetchAuthors();
     } catch (error: any) {
       setError("Error deleting blog: " + error.message);
     }
@@ -122,32 +124,34 @@ export default function BlogPage(): JSX.Element {
       <h1 className="text-3xl font-bold mb-4">Blog Page</h1>
       {error && <div className="text-red-500 mb-4">{error}</div>}
       <div className="mb-4">
-        <label className="block mb-2">Author:</label>
-        <div className="flex flex-wrap">
-          {filteredAuthors.map((author) => (
-            <button
-              key={author._id}
-              onClick={() => setSelectedAuthor(author)}
-              className={`bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded mr-2 mb-2 ${
-                selectedAuthor?._id === author._id
-                  ? "bg-blue-500 text-green-500"
-                  : ""
-              }`}
-            >
-              {author.name}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="mb-4">
         <label className="block mb-2">Search Author:</label>
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search author"
-          className="block w-full border border-gray-300 rounded p-2"
+          className="block w-full border border-gray-300 rounded p-2 mb-2"
         />
+      </div>
+      <div className="mb-4">
+        <label className="block mb-2">Author:</label>
+        <div className="flex flex-wrap">
+          {filteredAuthors.map((author) => (
+            <button
+              key={author._id}
+              onClick={() => setSelectedAuthor(author)}
+              className={clsx(
+                "bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded mr-2 mb-2",
+                {
+                  "bg-blue-500 text-green-500":
+                    selectedAuthor?._id === author._id,
+                }
+              )}
+            >
+              {author.name}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="mb-4">
         <label className="block mb-2">
